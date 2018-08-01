@@ -1,6 +1,7 @@
 package stacks
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -142,6 +143,7 @@ func (handler *Handler) createSwarmStackFromGitRepository(w http.ResponseWriter,
 	}
 
 	stackID := handler.StackService.GetNextIdentifier()
+	log.Printf("[DEBUG] - Stack identifier: %d\n", stackID)
 	stack := &portainer.Stack{
 		ID:         portainer.StackID(stackID),
 		Name:       payload.Name,
@@ -154,6 +156,7 @@ func (handler *Handler) createSwarmStackFromGitRepository(w http.ResponseWriter,
 
 	projectPath := handler.FileService.GetStackProjectPath(strconv.Itoa(int(stack.ID)))
 	stack.ProjectPath = projectPath
+	log.Printf("[DEBUG] - Stack object: %+v\n", stack)
 
 	gitCloneParams := &cloneRepositoryParameters{
 		url:            payload.RepositoryURL,
@@ -163,6 +166,8 @@ func (handler *Handler) createSwarmStackFromGitRepository(w http.ResponseWriter,
 		username:       payload.RepositoryUsername,
 		password:       payload.RepositoryPassword,
 	}
+
+	log.Printf("[DEBUG] - Git clone parameters: %+v\n", gitCloneParams)
 
 	doCleanUp := true
 	defer handler.cleanUp(stack, &doCleanUp)
